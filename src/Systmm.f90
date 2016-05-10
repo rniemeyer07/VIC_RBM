@@ -452,7 +452,7 @@ do nyear=start_year,end_year
                   /(Q_trib_tot_x + Q_trib_tot(j)) 
                 Q_trib_tot_x = Q_trib_tot_x + Q_trib_tot(j)
               end if
-           if(Q_trib_tot_x == 0)  print *,'nresx',nresx,'j',j, 'Q_trib_tot_x',Q_trib_tot_x
+        !   if(Q_trib_tot_x == 0)  print *,'nresx',nresx,'j',j, 'Q_trib_tot_x',Q_trib_tot_x
 
             end do
             !    print *, 'Q-in', Q_res_in(nresx), 'Q-trib', Q_trib_tot_x

@@ -76,8 +76,12 @@ call getarg ( 2, outPrefix )
 ! Identify input/output files
 !
 net_file      = TRIM(inPrefix)//'_Network_2'
+! spatial_file  = TRIM(outPrefix)//'simple_test.Spat'
+! temp_file     = TRIM(outPrefix)//'simple_test.Temp'
 spatial_file  = TRIM(outPrefix)//'.Spat'
 temp_file     = TRIM(outPrefix)//'.Temp'
+
+print *, 'spatial_file',  spatial_file
 !
         write(*,*) 'Spatial file: ',spatial_file         
         write(*,*) 'Network file    : ',net_file
