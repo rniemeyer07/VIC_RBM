@@ -418,12 +418,36 @@ do nyear=start_year,end_year
         if (T_0.lt.0.5) T_0=0.5
         temp(nr,ns,n2)=T_0
         T_trib(nr)=T_0
+
+            ! ---- loop to give downstream reservoir the temperature ---
+            do i = 1, nres
+              
+              if(reservoir .and. ncell + 1 == res_start_node(i))then
+                  !this loop is so T_res_in is for segment upstream of first
+                  !  node in the reservoir
+                  if(segment_cell(ns,nr) .eq. segment_cell(ns-1,nr) ) then 
+                    T_res_in(i) = T_0
+                  end if
+
+                  if(ns .eq. 1) then
+                   T_res_in(i) = T_head(nr)
+                  end if
+               !    print *,'nres',nres, 'nd',nd,'i',i, 'ncell', ncell,
+               !    'T_0',T_0
+              end if
+            end do
        
         !
         !             Stream Reservoir Subroutine
         !
-        T_res_in_x = T_0  ! saved temperature from previous segment,when it
-        if( ns .eq. 3 )    write(92,*) time, segment_cell(nr,ns),ns,  T_res_in_x 
+
+        if(nd ==1 .and. nyear .eq. 1949) print *, 'res_node', res_start_node(1)
+  !      if(nseg ) then
+
+  !      else if 
+  !              T_res_in_x = temp(nr,ns-1,n2)  ! temperature in upstream segment
+  !      end if
+        if( ns .eq. 3 )    write(92,*) time, segment_cell(nr,ns),ns,  T_res_in(1) 
         ! gets to the start node of a reservoir            
 
         ! if(any(segment_cell(nr,ns) == res_start_node(:))) print *,'segment_cell_reservoir', segment_cell(nr,ns)
@@ -431,7 +455,7 @@ do nyear=start_year,end_year
           if(reservoir .and. res_start_node(i) .eq. segment_cell(nr,ns) .and. .not. res_start(i) ) then
             nresx = i                
             Q_res_in(nresx) = Q_in(nncell)
-            T_res_in(nresx) = T_res_in_x ! this will be advection from this reach to reservoir
+           ! T_res_in(nresx) = T_res_in_x ! this will be advection from this reach to reservoir
             res_start(i) = .true.    ! logical so it won't add another T_res_in
             Q_trib_tot_x = 0   ! initialize trib flow in this reser. as 0
             T_trib_in_x = 0   ! initialize trib temp in this reser. as 0

@@ -27,6 +27,9 @@ SUBROUTINE reservoir_subroutine(nresx, nd, q_surf,time)
   ! -------------------- calculate temperature terms  -------------------------
       dif_epi_x  = K_z(nresx) * surface_area(nresx) *  (T_hypo(nresx) - T_epil(nresx)) / volume_e_x(nresx)
       dif_hyp_x  = K_z(nresx) * surface_area(nresx) *  (T_epil(nresx) - T_hypo(nresx)) / volume_h_x(nresx)
+      dif_epi_x = 0
+      dif_hyp_x = 0
+
 !print *,'nres',nres, 'dif_epi_x', dif_epi_x,'K_z',K_z(nresx),  'surface_area(nresx)',surface_area(nresx)&
 !        ,'T_hypo', T_hypo(nresx),'T_epil',T_epil(nresx), 'vol', volume_e_x(nresx)
   ! --------------------- calculate advection terms --------------------------- 
