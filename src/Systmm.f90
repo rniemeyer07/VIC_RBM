@@ -421,8 +421,9 @@ do nyear=start_year,end_year
         !
         !             Stream Reservoir Subroutine
         !
-
         T_res_in_x = T_0  ! saved temperature from previous segment,when it
+        if( res_start_node(1) .eq. segment_cell(nr,ns) ) 
+                write(35,*) nd, segment_cell(nr,ns),  T_0
         ! gets to the start node of a reservoir            
 
         ! if(any(segment_cell(nr,ns) == res_start_node(:))) print *,'segment_cell_reservoir', segment_cell(nr,ns)
