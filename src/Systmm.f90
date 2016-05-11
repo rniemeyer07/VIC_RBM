@@ -134,15 +134,15 @@ dt_part=0.
 x_part=0.
 no_dt=0
 nstrt_elm=0
-temp=0.5
+temp=15
 ! Initialize headwaters temperatures
 !
-T_head=4.0
+T_head=15
 !!
 !
 ! Initialize smoothed air temperatures for estimating headwaters temperatures
 !
-T_smth=4.0
+T_smth=15
 
 
 !
@@ -328,6 +328,7 @@ do nyear=start_year,end_year
             nd2 = nd  ! cut out later, just to print day in energy module
             call energy(T_0,q_surf,nncell, ns, nyear, nd2)
             q_dot=(q_surf/(z*rfac))
+            q_dot = 0  ! ONLY for simple test - REMOVE once not using
             T_0=T_0+q_dot*dt_calc !adds heat added only during time parcel passed this segment
 
  !  if(ncell .eq. 82 .and. ns .eq. 34  ) write(83,*) nyear,nd &
@@ -422,8 +423,7 @@ do nyear=start_year,end_year
         !             Stream Reservoir Subroutine
         !
         T_res_in_x = T_0  ! saved temperature from previous segment,when it
-        if( res_start_node(1) .eq. segment_cell(nr,ns) ) 
-                write(35,*) nd, segment_cell(nr,ns),  T_0
+        if( ns .eq. 2 )    write(92,*) time, segment_cell(nr,ns),ns,  T_0 
         ! gets to the start node of a reservoir            
 
         ! if(any(segment_cell(nr,ns) == res_start_node(:))) print *,'segment_cell_reservoir', segment_cell(nr,ns)
