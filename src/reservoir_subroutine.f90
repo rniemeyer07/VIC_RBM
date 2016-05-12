@@ -27,8 +27,8 @@ SUBROUTINE reservoir_subroutine(nresx, nd, q_surf,time)
   ! -------------------- calculate temperature terms  -------------------------
       dif_epi_x  = K_z(nresx) * surface_area(nresx) *  (T_hypo(nresx) - T_epil(nresx)) / volume_e_x(nresx)
       dif_hyp_x  = K_z(nresx) * surface_area(nresx) *  (T_epil(nresx) - T_hypo(nresx)) / volume_h_x(nresx)
-      dif_epi_x = 0
-      dif_hyp_x = 0
+     ! dif_epi_x = 0
+     ! dif_hyp_x = 0
 
 !print *,'nres',nres, 'dif_epi_x', dif_epi_x,'K_z',K_z(nresx),  'surface_area(nresx)',surface_area(nresx)&
 !        ,'T_hypo', T_hypo(nresx),'T_epil',T_epil(nresx), 'vol', volume_e_x(nresx)
@@ -41,7 +41,7 @@ SUBROUTINE reservoir_subroutine(nresx, nd, q_surf,time)
   ! ------------------- calculate change in temperature  ---------------------
       ! ---------------- epilimnion -----------
          ! ------------ calculate total energy ----------
-          q_surf = 0 ! ONLY for simple test, REMOVE once done with simple test
+         ! q_surf = 0 ! ONLY for simple test, REMOVE once done with simple test
           energy_x  = (q_surf * dt_comp ) / (depth_e(nresx) * density * heat_c_kcal ) ! kcal/sec*m2 to C/day
           temp_change_ep(nresx) = advec_in_epix + dif_epi_x + energy_x
 

@@ -328,7 +328,7 @@ do nyear=start_year,end_year
             nd2 = nd  ! cut out later, just to print day in energy module
             call energy(T_0,q_surf,nncell, ns, nyear, nd2)
             q_dot=(q_surf/(z*rfac))
-            q_dot = 0  ! ONLY for simple test - REMOVE once not using
+           ! q_dot = 0  ! ONLY for simple test - REMOVE once not using
             T_0=T_0+q_dot*dt_calc !adds heat added only during time parcel passed this segment
 
  !  if(ncell .eq. 82 .and. ns .eq. 34  ) write(83,*) nyear,nd &
