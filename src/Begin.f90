@@ -159,19 +159,6 @@ do nreservoir = 1,nres
               , res_width_feet(nreservoir), res_length_feet(nreservoir) &
               ,res_start_node(nreservoir), res_end_node(nreservoir)
 
-   print *, dam_number(nreservoir), res_depth_feet(nreservoir) &
-              , res_width_feet(nreservoir), res_length_feet(nreservoir) &
-              ,res_start_node(nreservoir), res_end_node(nreservoir)
- !  read(37,*) dam_number(nreservoir), dam_name ,dam_lat(nreservoir)
- !  ,dam_lon(nreservoir) &
- !             , res_grid_lat(nreservoir), res_grid_lon(nreservoir) &
- !             ,start_operating_year(nreservoir) , res_top_vol(nreservoir) &
- !             , res_bot_vol(nreservoir),res_max_flow(nreservoir) &
- !             ,res_min_flow(nreservoir), res_depth_feet(nreservoir) &
- !             , res_width_feet(nreservoir), res_length_feet(nreservoir) &
- !             ,res_start_node(nreservoir), res_end_node(nreservoir)
-
-
 end do
 
 !
@@ -235,7 +222,12 @@ do nr=1,nreach !loop through all the reaches from first to last reach
         !     Variable ndelta read in here.  At present, number of elements
         !     is entered manually into the network file (UW_JRY_2011/03/15)
         !
-        
+
+        !
+        !   Reads in Network file.    
+        !   First if loop is for if there are reservoirs, reads in additional column
+        !     with node of each reservoir with reservoir output
+        !        
         if(reservoir) then
            read(90,'(5x,i5,5x,i5,8x,i5,6x,a8,6x,a10,7x,f10.0,i5,i6)')  &  ! nodes for each reach
               node,nrow,ncol,lat,long,rmile1,ndelta(ncell),node_res
@@ -268,16 +260,12 @@ do nr=1,nreach !loop through all the reaches from first to last reach
         ! Added variable ndelta (UW_JRY_2011/03/15)
         !
             dx(ncell)=5280.*(rmile0-rmile1)/ndelta(ncell)
-!  print *, 'nr',nr,'nseg',nseg,'ndelta',ndelta(ncell), 'dx', dx(ncell)/5280
-        ! print *,'reach #: ', nr, 'ncell: ', ncell,'# of cells: ',nodes_x(nr,:)
-         !   print *,dx(ncell), rmile0 - rmile1, ndelta(ncell)
             rmile0=rmile1    !for next calculation, so rmile0 - rmile1 is distance between two nodes
             nndlta=0
         200 continue
             nndlta=nndlta+1
             nseg=nseg+1
             segment_cell(nr,nseg)=ncell
-!     print *,'nndlta',  nndlta, 'nr',nr,'nseg',nseg,x_dist(nr,nseg)/5280, x_dist(nr,nseg-1)/5280, dx(ncell)/5280
             x_dist(nr,nseg)=x_dist(nr,nseg-1)-dx(ncell)
 
         !
@@ -285,26 +273,15 @@ do nr=1,nreach !loop through all the reaches from first to last reach
         !
         if(reservoir) then
             if(res_presx) then  !if cell in reservoir
-       !         x_dist_res(ncell) = 0 ! cell in reservoir
                 res_upstream(nr,ncell) = .false.
 
             else  if(any(res_pres(nr,:)) ) then   ! any reservoirs upstream of this cell in this reach
                 xres(1:size(res_end_node)) = ncell - res_end_node
-      !          x_dist_res(ncell) = 5280.*(rmile_node(res_end_node(minloc(xres,dim=1 ,mask=(xres >0))-1)) - rmile1 ) !  /ndelta(ncell)
-
-       !         if(nndlta > 1) x_dist_res(ncell) = x_dist_res(ncell) +  dx(ncell)
-
-               res_upstream(nr,ncell) = .true.
-
-           else
-     !           x_dist_res(ncell) = 0 ! no reservoir upstream of cell
-     !           res_upstream(nr,ncell) = .false.
+                res_upstream(nr,ncell) = .true.
 
            end if
 
         end if
-  !      print *,'nr',nr,'nseg',nseg, nseg,x_dist(nr,nseg)/5280
-     !       if(reservoir) x_dist_res(nr,nseg) = x_dist_res(nr,nseg-1)- dx_res(ncell)
 
         !
         !   Write Segment List for mapping to temperature output (UW_JRY_2008/11/19)
@@ -320,23 +297,12 @@ do nr=1,nreach !loop through all the reaches from first to last reach
          no_celm(nr)=nseg
          segment_cell(nr,nseg)=ncell
          cell_segment(nr,ncell) = nseg
-      !    print *, 'nseg', nseg
          x_dist(nr,nseg)=5280.*rmile1
-    !     if(reservoir) x_dist_res(nr,nseg) = 5280.*rmile1
-!    print *,'nndlta',  nndlta, 'nr',nr,'nseg',nseg, 'x_dist', x_dist(nr,(nseg-1):nseg)
         !
         ! End of segment loop
         !
     end do
     if(ns_max_test.lt.nseg) ns_max_test=nseg
-
-        if(any(res_pres(nr,:))) then
-       !         print *, 'nr',nr,'print res'
-        else 
-        !        print *,'nr',nr, 'no res'
-        end if
-
-!   print *, 'nodes_x for reach  ', nr, nodes_x(nr,1:15)
 
 !
 ! End of reach loop
