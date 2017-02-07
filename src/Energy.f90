@@ -1,7 +1,7 @@
-SUBROUTINE Energy(T_surf,q_surf,ncell, ns, nyear, nd2)
+SUBROUTINE Energy(T_surf,q_surf,ncell, ns, nyear)
    use Block_Energy
    implicit none
-   integer::i,ncell,nd, ns, nyear, nd2
+   integer::i,ncell,nd, ns, nyear
    real::A,B,e0,q_surf,q_conv,q_evap,q_ws,td,T_surf
    real, dimension(2):: q_fit, T_fit
 !

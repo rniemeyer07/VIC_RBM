@@ -5,13 +5,13 @@ integer:: nc,nd,ndd,nm,nr,ns, nresx, ncellx
 integer:: nr_trib,ntrb,ntribs
 integer:: nrec_flow,nrec_heat
 integer:: n1,n2,nnd,nobs,ndays,nyear,nd_year,ntmp
-integer:: npart,nseg,nwpd, nd2 
+integer:: npart,nseg,nwpd 
 real::    dt_comp,dt_calc,dt_total,hpd,Q1,Q2,q_dot,q_surf,z
 real   :: rminsmooth
 real   :: T_0,T_dist
 real(8):: time
 real   :: x,x_bndry,xd,xdd,xd_year,x_head,xwpd,year
-real,dimension(:),allocatable:: T_smth  ! ,T_trib, T_head
+real,dimension(:),allocatable:: T_smth  
 real,dimension(:,:,:),allocatable:: temp
 integer,dimension(:,:,:),allocatable:: res_run
 !
@@ -22,16 +22,9 @@ logical:: DONE
 ! Indices for lagrangian interpolation
 !
 integer:: npndx,ntrp
-! integer, dimension(3):: ndltp=(/-2,-3,-3/)
-! integer, dimension(3):: nterp=(/3,4,3/)
-
 !
 real, parameter:: pi=3.14159,rfac=304.8
 
-!       reservoir variables 
-! real, dimension (:), allocatable ::  T_epil,T_hypo, volume_e_x,volume_h_x,stream_T_in
-! real, dimension (:), allocatable ::  density_epil, density_hypo, density_in
-!
 !
 contains
 !
@@ -50,9 +43,6 @@ character (len=200):: temp_file, reservoir_output_file, energy_file
 integer :: njb, resx2, i, j
 !
 real :: tntrp, T_res_f, T_0i
-!real,dimension(4):: ta,xa
-! array for each reservoir for if inflow from that parcel
-! to reservoir has been calculated
 logical, dimension(heat_cells) :: res_inflow
 logical :: LEAP_YEAR
 
@@ -165,18 +155,10 @@ T_smth=10
 !    initialize reservoir geometery variables
 !
 depth_e = res_depth_feet(:) * depth_e_frac * ft_to_m  ! ft_to_m converst from feet to m
-! print *,'res_depth',res_depth_feet(:),'depth_e_frac',depth_e_frac,  'depth_e', depth_e(:)
 depth_h = res_depth_feet(:) * depth_h_frac * ft_to_m  ! ft_to_m converst from feet to m
 surface_area = res_width_feet(:) *  res_length_feet(:) * ft_to_m * ft_to_m  ! ft_to_m converst from feet to m
 volume_e_x = surface_area(:) * depth_e(:) 
 volume_h_x = surface_area(:) * depth_h(:) 
-print *, 'depth_epil', depth_e
-print *, 'depth_hypo', depth_h
-! depth_e_inital = depth_e
-! volume_e_initial = volume_e_x
-! depth_h_inital = depth_h
-! volume_h_initial = volume_h_x
-!     initial temperature
 
 !
 !     open the output file
@@ -262,13 +244,13 @@ do nyear=start_year,end_year
         !
         ! -----------------------------------------------------------------------
  
-          ! if segment in river research, or the first segment of reservoir
          if((res_pres(nr,segment_cell(nr,ns)) .eqv. .false.)  .or. &
             (any(segment_cell(nr,ns) == res_start_node(:)) .eqv. .false. .and. &
              res_pres(nr,segment_cell(nr,ns-1)) .eqv. .false.) ) then
-
+            !    
             !     Establish particle tracks
-            call Particle_Track(nr,x_head,x_bndry) ! added 'nd' just for testing purposes
+            !
+            call Particle_Track(nr,x_head,x_bndry) 
 
             DONE=.FALSE. ! logical for verifying if all tribs have been read in
 
@@ -300,8 +282,7 @@ do nyear=start_year,end_year
 
             do nm=nm_start,1,-1  ! cycle through each segment parcel passed through
               z=depth(nncell)
-              nd2 = nd  ! cut out later, just to print day in energy module
-              call energy(T_0,q_surf,nncell, ns, nyear, nd2)
+              call energy(T_0,q_surf,nncell, ns, nyear)
               q_dot=(q_surf/(z*rfac))
 
         ! ################ This is specially for simple energy test###########!                
@@ -310,7 +291,6 @@ do nyear=start_year,end_year
               T_0=T_0+q_dot*dt_calc !adds heat added only during time parcel passed this segment
 
               if(T_0.lt.0.0) T_0=0.0
-  !  write(*,*) 'pre trib subroutine      nd:  ', nd
 
              call trib_subroutine(nncell,ncell0, T_0,nr_trib, nr & 
                           ,ns, nseg, n2, DONE, dt_calc, dt_total, ncell)
@@ -322,11 +302,9 @@ do nyear=start_year,end_year
         !                     Reservoir Subroutine 
         !
         ! -----------------------------------------------------------------------
- !   write(*,*) 'pre reservoir subroutine'
 
           ! -------------  if cell is in reservoir ----------------
           if(reservoir .and. res_pres(nr,segment_cell(nr,ns))) then
-! print *, 'ns', ns, 'segment in reservoir'
 
             ncellx = segment_cell(nr,ns) ! cell (node) reservoir
 
@@ -348,7 +326,7 @@ do nyear=start_year,end_year
                 Q_trib_tot_x = 0   ! initialize trib flow in this reser. as 0
                 T_trib_in_x = 0   ! initialize trib temp in this reser. as 0
                 res_start(i) = .true.    ! logical so it won't add another T_res_in
-            !    print *, 'nd',nd,'ns',ns, 'T_res_in', T_res_in(nresx)
+
               end if
 
               ! ------------ end of reservoir - calculate the reservoir temperature -----------  
@@ -364,9 +342,6 @@ do nyear=start_year,end_year
                   Q_res_in(nresx) = Q_res_in(nresx) + Q_trib_tot(j)
 
                 end do
-          !  print *, 'nd',nd,'ns',ns, 'T_res_in', T_res_in(nresx)
-
-   !         T_res_f = T_res_in(nresx)
 
                 call stream_density(T_res_in(nresx), density_in(nresx))
                 call stream_density(T_epil(nresx), density_epil(nresx))
@@ -424,7 +399,6 @@ do nyear=start_year,end_year
       !     End of weather period loop (NDD=1,NWPD)
       !
     end do   ! end day loop
-  !  print *, 'temp_out Systmm', temp_out(:)
 
     reservoir_storage_prev = reservoir_storage
 
@@ -444,8 +418,6 @@ do nyear=start_year,end_year
   !     End of year loop
   !
 end do  ! end of large loop
-!            dt_calc=dt(nncell) ! showed up after John's merge (5/17/16)
-!            dt_total=dt_total+dt_calc ! showed up after John's merge (5/17/16)
 !
 !     ******************************************************
 !                        return to rmain
