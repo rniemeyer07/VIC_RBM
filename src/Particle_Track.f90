@@ -23,15 +23,12 @@ DO ns=no_celm(nr),1,-1  ! loops from outlet upstream to headwater in each reach
     dt_total=dt_part(ns)         ! total elapsed travel time between segment
     x_part(ns)=x_dist(nr,ns)     ! river mile distance of that segment
 
-!  print *,'nd',nd, 'ns',ns, 'dt_part(ns)', dt_part(ns)
-
     100 CONTINUE
 
     !
     !     Determine if the total elapsed travel time is equal to the
     !     computational interval
     !
-
 
     IF(dt_total.lt.dt_comp) THEN ! if time to travel between segments is less than computation interval (usually 86400 seconds),
                                  !     i.e. water will travel between segments faster than time interval

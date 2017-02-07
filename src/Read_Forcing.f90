@@ -54,29 +54,16 @@ do nr=1,nreach
                 ! reservoir is on this reach (not another reach)
                 if( res_end_node(i) .ge. cell_min .or. res_end_node(i) .le. cell_max) then 
 
-  if(no_heat .eq. 21)   print *,'nd',nnd,'i = nres',i,'no_heat',no_heat,'Q_in',Q_in(no_heat) &
-      , 'res_min_flow',res_min_flow(i)
-
                   ! -----if flow immediately downstream of reservoir is less
                   ! than minimum reservoir flow
                   if(Q_in(no_heat) .lt. res_min_flow(i)  ) then
        
-  if(no_heat .eq. 21)   print *,'nd',nnd,  'no_heat',no_heat,'Q_in',Q_in(no_heat) &
-     , 'reservoir',i, 'depth',depth(no_heat)
-
                     Q_in(no_heat) = res_min_flow(i)
                     Q_out(no_heat) = res_min_flow(i)
                     depth(no_heat) = a_d *(Q_in(no_heat)**b_d) !flow depth [ft]
                     width(no_heat) = a_w *(Q_in(no_heat)**b_w) !flow width [ft]
                     u(no_heat) = Q_in(no_heat) / depth(no_heat) / width(no_heat)  ! flow velocoty [ft/s]
 
-!  if(no_heat .eq. 21)   print
-!  *,'nd',nnd,'no_heat',no_heat,'Q_in',Q_in(no_heat),'depth',depth(no_heat)
-
-       !            if(depth(no_heat) .lt. 10) then
-! if(no_heat .eq. 21)   print
-! *,'nd',nnd,'no_heat',no_heat,'Q_in',Q_in(no_heat),'depth',depth(no_heat)
-       !             depth(no_heat) = 10 ! new depth in feet
                   end if
                 end if
               end if
@@ -84,20 +71,17 @@ do nr=1,nreach
             end do
 
 
-        write(85,*),Q_in(no_heat),Q_out(no_heat),Q_diff(no_heat),depth(no_heat),width(no_heat),u(no_heat)
         !
         if(u(no_heat).lt.0.01) u(no_heat)=0.01
         if(ncell.ne.no_heat) write(*,*) 'Flow file error',ncell,no_heat 
         !
 
 
-  if(ncell .eq. 902) print *,'nnd',nnd, 'ncell', ncell
 
         read(36,*) ncell &  !  heat file
             ,dbt(no_heat),ea(no_heat) &
             ,Q_ns(no_heat),Q_na(no_heat),rho &
             ,press(no_heat),wind(no_heat)
-        write(86,*),dbt(no_heat),ea(no_heat),Q_ns(no_heat),Q_na(no_heat),rho,press(no_heat),wind(no_heat)
         !          
         !  if(ncell.ne.no_heat) write(*,*) 'Heat file error',ncell,no_heat 
         !
@@ -109,9 +93,7 @@ do nr=1,nreach
         Q_avg=0.5*(Q_in(no_heat)+Q_out(no_heat))
         Q_diff(no_heat)=Q_diff(no_heat)/delta_n
         dt(no_heat)=dx(no_heat)/u(no_heat)  ! time(sec) to travel between segments,  u=velocity(ft/sec)
-! print *,'nd',nnd,'no_heat',no_heat, 'ncell', ncell, 'dx(ncell)', dx(ncell), 'u(no_heat)', u(no_heat), 'dt',dt(no_heat)
 
-  !   print *, no_heat,dt(no_heat)/86400
         !
         !  Added check to see if travel time of parcel exceeds the
         !  computational interval.  If so, it writes to file fort.45.
@@ -126,9 +108,6 @@ do nr=1,nreach
         !
         !        Calculate the next upstream dam and time for water to get there 
         !
-     !  if(reservoir) THEN
-     !        dt_res(no_heat) =dx_res(no_heat)/u(no_heat)
-     !   END IF
 
     end do
 
@@ -153,7 +132,6 @@ do nr=1,nreach
     !  take the values of the segment to which it is tributary
     !
     Q_in(ncell)=Q_out(ncell-1)
-    !  Q_out(ncell)=Q_in(ncell-1)
     Q_diff(no_heat)=0.0
     u(no_heat)=u(no_heat-1)
     depth(no_heat)=depth(no_heat-1)
@@ -161,26 +139,14 @@ do nr=1,nreach
     dt(no_heat)=0.5*dx(ncell)/u(no_heat)
 
    ! ################ This is specially for simple energy test###########!                
-  ! dt(no_heat)=dx(ncell)/u(no_heat)
-! print *,'nd',nnd,'no_heat',no_heat, 'ncell', ncell, 'dx(ncell)', dx(ncell), 'u(no_heat)', u(no_heat), 'dt',dt(no_heat)
+   ! dt(no_heat)=dx(ncell)/u(no_heat)
 
-if(nnd.gt.10) stop !13505
+!if(nnd.gt.10) stop !this is only used if you want to run model for a few days
 end do
  
 ! --------------- read in storage data for reservoirs --------------
 if(reservoir) then
     read(38,*) datetime,reservoir_storage(:)
-    !read(38, *) datetime & 
-    !   , reservoir_storage(1),reservoir_storage(2),reservoir_storage(3),reservoir_storage(4),reservoir_storage(5) &
-    !   , reservoir_storage(6),reservoir_storage(7),reservoir_storage(8),reservoir_storage(9),reservoir_storage(10) &
-    !   , reservoir_storage(11),reservoir_storage(12),reservoir_storage(13),reservoir_storage(14),reservoir_storage(15) &
-    !   , reservoir_storage(16),reservoir_storage(17),reservoir_storage(18),reservoir_storage(19),reservoir_storage(20) &
-    !   , reservoir_storage(21),reservoir_storage(22),reservoir_storage(23),reservoir_storage(24) ! , reservoir_storage(25) 
-    !print  *, reservoir_storage(1),reservoir_storage(2),reservoir_storage(3),reservoir_storage(4) , reservoir_storage(5) 
-
-   ! do i = 1, nres
-     !  reservoir_storage(i) = 
-   ! end do
 end if
 
 END SUBROUTINE Read_Forcing
