@@ -257,7 +257,7 @@ do nr=1,nreach !loop through all the reaches from first to last reach
         end if
 
 
-        if(node .eq. 624) print *, 'node',node,'ncell',ncell,'nr',nr
+   !     if(node .eq. 624) print *, 'node',node,'ncell',ncell,'nr',nr
 
         !    Set the number of segments of the default, if not specified
         !
@@ -271,7 +271,7 @@ do nr=1,nreach !loop through all the reaches from first to last reach
         ! Added variable ndelta (UW_JRY_2011/03/15)
         !
             dx(ncell)=5280.*(rmile0-rmile1)/ndelta(ncell)
-!  print *, 'nr',nr,'nseg',nseg,'ndelta',ndelta(ncell), 'dx', dx(ncell)/5280
+ !print *, 'nr',nr,'nseg',nseg,'ndelta',ndelta(ncell), 'dx', dx(ncell)/5280
         ! print *,'reach #: ', nr, 'ncell: ', ncell,'# of cells: ',nodes_x(nr,:)
          !   print *,dx(ncell), rmile0 - rmile1, ndelta(ncell)
             rmile0=rmile1    !for next calculation, so rmile0 - rmile1 is distance between two nodes

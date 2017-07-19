@@ -1,4 +1,4 @@
-subroutine upstream_subroutine(nseg,nr,ns,T_0, npndx, npart, n1, ncell, resx2)
+subroutine upstream_subroutine(nseg,nr,ns,T_0, npndx, npart, n1, ncell, resx2,time)
 
 use Block_Reservoir
 use Block_Hydro
@@ -11,11 +11,15 @@ integer :: resx2, resx3,npndx, npart, ntrp, nseg, nr, ns, n1, ncell, i
 real :: x, T_0, tntrp
 integer, dimension(3):: ndltp=(/-2,-3,-3/)
 integer, dimension(3):: nterp=(/3,4,3/)
-
+real(8) :: time
           !
           !   Loop to establish where parcel started
           !   (e.g. in reservoir, downstream of reservoir, headwater, etc.)
           !
+
+
+if(ncell .eq. 624 .and. ns .eq. 9)  write(109, *) time,nseg, reservoir, res_pres(nr,segment_cell(nr,ns)) &
+      , res_pres(nr,segment_cell(nr,nseg)),  any(res_pres(nr,segment_cell(nr,nseg):segment_cell(nr,ns)) )
 
           ! --- if parcel started upstream of reservior and finished downstream -----
           if (reservoir.and. any(res_pres(nr,segment_cell(nr,nseg):segment_cell(nr,ns)) ) &
@@ -75,6 +79,16 @@ integer, dimension(3):: nterp=(/3,4,3/)
 ! print *, 'nseg', nseg, 'ns',ns,'T_0',T_0, 'parcel in reservoir and not first seg'
   ! if(ns .gt. 7) print *,'if parcel is in reservoir', '  nseg',nseg,'T_0',T_0
 
+
+           ! ----------- if cell is immediatley downstream of a reservoir  -----------
+        !  else if (res_pres(nr, (segment_cell(nr,nseg) - 1) ))  then
+        !    T_0 = temp_out_i(res_num(nr,(segment_cell(nr,nseg) -1 ) ))  !  
+        !    res_upstreamx = .true.
+        !    resx2 = res_num(nr, (segment_cell(nr,nseg) -1) )
+        !    ncell0res = res_end_node(resx2)
+
+
+
            ! ----------- if parcel started in river and ended in river  -----------
           !            (i.e. did not start in headw, did not start in reservoir)
           !            OR if start node in the reservoir
@@ -114,6 +128,13 @@ integer, dimension(3):: nterp=(/3,4,3/)
 
 
 
+if(ncell .eq. 624 .and. ns .eq. 9)  write(110, *) time,nseg,nr,ns, reservoir,res_pres(nr,segment_cell(nr,ns)) &
+      , res_pres(nr,segment_cell(nr,nseg)),any(res_pres(nr,segment_cell(nr,nseg):segment_cell(nr,ns)) ) &
+      , resx2, res_upstreamx, T_0
+
+
+!if(ncell .eq. 624 .and. ns .eq. 9) print *,time, res_pres(nr,segment_cell(nr,nseg):segment_cell(nr,ns)) &
+!    , segment_cell(nr,nseg), segment_cell(nr,ns) 
 
 
 end subroutine upstream_subroutine

@@ -41,6 +41,12 @@ do nr=1,nreach
            ,Q_in(no_heat),Q_out(no_heat),Q_diff(no_heat) &  
            ,depth(no_heat),width(no_heat),u(no_heat)
 
+    if(no_heat .eq. 624) write(117,*) nnd,ncell,nr,no_heat,Q_in(no_heat),depth(no_heat),width(no_heat) &
+          ,u(no_heat),dx(no_heat),dx(no_heat)/u(no_heat)   
+
+    if(no_heat .eq. 625) write(118,*)nnd,ncell,nr,no_heat,Q_in(no_heat),depth(no_heat),width(no_heat) &
+          ,u(no_heat),dx(no_heat),dx(no_heat)/u(no_heat)
+
         ! ---------- add loop for regulated flow -----------------
         ! regulated flow in some places is negative, so setting flow downstream
         ! of reservoirs to minimum flow of reservoir, IF that flow is less than
@@ -161,7 +167,7 @@ do nr=1,nreach
   ! dt(no_heat)=dx(ncell)/u(no_heat)
 ! print *,'nd',nnd,'no_heat',no_heat, 'ncell', ncell, 'dx(ncell)', dx(ncell), 'u(no_heat)', u(no_heat), 'dt',dt(no_heat)
 
-!if(nnd.gt.2500) stop !13505
+!if(nnd.gt.1) stop !13505
 end do
  
 ! --------------- read in storage data for reservoirs --------------

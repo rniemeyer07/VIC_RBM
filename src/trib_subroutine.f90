@@ -1,20 +1,23 @@
 subroutine trib_subroutine(nncell,ncell0, T_0,nr_trib & 
-      , nr, ns, nseg, n2, DONE, dt_calc, dt_total, ncell)
+      , nr, ns, nseg, n2, DONE, dt_calc, dt_total, ncell, time, nm)
 use Block_Reservoir
 use Block_Hydro
 use Block_Network
 use Block_Flow
 
 implicit none
-
-real ::Q1, T_0, Q2, T_dist, dt_calc,dt_total, temp_source
-integer :: ntribs, nncell,nr_trib, nr, ns, nseg, n2, ncell0, ncell
+real(8):: time
+real ::Q1, T_0, Q2, T_dist, dt_calc,dt_total, temp_source, T_0i
+integer :: ntribs, nncell,nr_trib, nr, ns, nseg, n2, ncell0, ncell, nm
 logical :: DONE
 
             !
             !   Loop to add all tributary flow and temperature entering segment
             !
             !
+
+       if(ncell == 624 .and. ns == 9) write(97,*) time,nncell,Q_in(nncell), no_tribs(nncell)
+       if(ncell == 624 .and. ns == 10) write(98,*) time,nncell,Q_in(nncell), no_tribs(nncell)
 
   !   print *, 'trib_subroutine loop', '   no_tribs(nncell)', no_tribs(nncell),'nncell', nncell
             Q1=Q_in(nncell)  !flow entering cell from reach
@@ -30,6 +33,7 @@ logical :: DONE
              !   if(nncell .eq. heat_cells) nr_trib = 0
                 if(Q_trib(nr_trib).gt.0.0) then
 
+         T_0i = T_0
 !  print *,'cell', nncell,'ns',ns, 'stream temperature', T_0, 'trib_temperature', T_trib
 
                   ! --- add trib flow and temperature to total flow and temp --
@@ -37,8 +41,11 @@ logical :: DONE
                   T_0=(Q1*T_0+Q_trib(nr_trib)*T_trib(nr_trib))/Q2 !adjust temp based on trib temp/flow
 
 
-      ! if(ncell == 941) print *,'T_0',T_0,'Q1',Q1,'Q_trib',Q_trib(nr_trib),'T_trib' &
-      !    ,T_trib(nr_trib),'Q_2',Q2
+       if(ncell == 624 .and. ns == 9) write(95,*) time,ntrb , T_0i, T_0, Q1,Q_trib(nr_trib), T_trib(nr_trib), Q2 
+       if(ncell == 624 .and. ns == 10) write(96,*) time,ntrb , T_0i, T_0, Q1,Q_trib(nr_trib), T_trib(nr_trib), Q2 
+
+      ! print *,'T_0',T_0,'Q1',Q1,'Q_trib',Q_trib(nr_trib),'T_trib' &
+       !   ,T_trib(nr_trib),'Q_2',Q2
 
                 end if
                 !
@@ -84,6 +91,7 @@ logical :: DONE
             DONE=.FALSE.
           end if
 
+
   !  write(*,*) 'trib subroutine: pre dt_calc '
   !  write(*,*) 'dt_calc', dt_calc,  'nncell',nncell
 
@@ -95,4 +103,6 @@ logical :: DONE
           dt_total=dt_total+dt_calc
 !    print *, 'segment in end of trib subroutine', ns, 'nr_trib', nr_trib
 
+       if(ncell == 625 .and. ns == 11) write(115,*) time,nm, ncell0, nncell, nr, nseg, dt_calc, dt_total
+       if(ncell == 625 .and. ns == 12) write(116,*) time, nm,ncell0, nncell, nr, nseg, dt_calc, dt_total
 end subroutine trib_subroutine

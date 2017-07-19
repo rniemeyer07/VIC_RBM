@@ -1,4 +1,4 @@
-SUBROUTINE Particle_Track(nr,x_head,x_bndry)
+SUBROUTINE Particle_Track(nr,x_head,x_bndry, time)
 USE Block_Hydro
 USE Block_Network
 use Block_Reservoir
@@ -7,7 +7,7 @@ integer, intent(IN):: nr
 real, intent(IN):: x_head, x_bndry 
 integer:: ncell, ns, nx_part, nx_s
 real:: dt_total
-
+real(8):: time
 !    This loop goes through each reach seperately
 !
 !     First do the reverse particle tracking
@@ -83,6 +83,11 @@ DO ns=no_celm(nr),1,-1  ! loops from outlet upstream to headwater in each reach
     IF(nx_part.LT.1) nx_part=1
     nstrt_elm(ns)=nx_part   !segment of water at previous time step
     no_dt(ns)=nx_s    ! number of segments water traveled through
+
+
+    if(ncell .eq. 625 .and. ns .eq. 11)  write(107, *) time,ncell,ns,nx_part,nx_s,dt_part(ns),x_part(ns), dt_total
+    if(ncell .eq. 625 .and. ns .eq. 12)  write(108, *) time,ncell,ns,nx_part,nx_s,dt_part(ns),x_part(ns), dt_total
+
 
 END DO
 

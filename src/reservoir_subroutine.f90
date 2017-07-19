@@ -21,7 +21,7 @@ SUBROUTINE reservoir_subroutine(nresx, nd, q_surf,time, nd_year, nyear)
         !log_K_z = log10(n_stability) * (-0.74)  - 3.8 ! high scenario based on empirical equation in Quay et al. 1980, Fig 11
         !log_K_z = log10(n_stability) * (-0.74)  - 4.6 ! moderate scenario based on empirical equation in Quay et al. 1980, Fig 11
         !log_K_z = log10(n_stability) * (-0.74)  - 5.4 ! low scenario based on empirical equation in Quay et al. 1980, Fig 11
-        log_K_z = log10(n_stability) * (-0.65)  - 3.1 ! high scenario - 2  w/ adjusted intercept based on empirical equation in Quay et al. 1980, Fig 11
+        log_K_z = log10(n_stability) * (-1)  - 5.699 ! high scenario - 2  w/ adjusted intercept based on empirical equation in Quay et al. 1980, Fig 11
         !log_K_z = log10(n_stability) * (-0.55)  - 2.3 ! high scenario - 3  w/ adjusted intercept based on empirical equation in Quay et al. 1980, Fig 11
         K_z(nresx) = 10**log_K_z
         if (K_z(nresx) > 2) K_z(nresx) = 2

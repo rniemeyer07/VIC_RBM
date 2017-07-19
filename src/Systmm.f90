@@ -6,7 +6,7 @@ integer:: nr_trib,ntrb,ntribs
 integer:: nrec_flow,nrec_heat
 integer:: n1,n2,nnd,nobs,ndays,nyear,nd_year,ntmp
 integer:: npart,nseg,nwpd, nd2 
-real::    dt_comp,dt_calc,dt_total,hpd,Q1,Q2,q_dot,q_surf,z
+real::    dt_comp,dt_calc,dt_total,hpd,Q1,Q2,q_dot,q_surf,z,dt_calc_i
 real   :: rminsmooth
 real   :: T_0,T_dist
 real(8):: time
@@ -264,25 +264,39 @@ do nyear=start_year,end_year
         !
         ! -----------------------------------------------------------------------
  
-          ! if segment in river research, or the first segment of reservoir
+          ! if segment in river reach, or the first segment of reservoir
          if((res_pres(nr,segment_cell(nr,ns)) .eqv. .false.)  .or. &
             (any(segment_cell(nr,ns) == res_start_node(:)) .eqv. .false. .and. &
              res_pres(nr,segment_cell(nr,ns-1)) .eqv. .false.) ) then
 
+
+    if(ncell .eq. 624 .and. ns .eq. 9)  write(105, *)time,ncell,ns,nr,x_head,x_bndry &
+        ,res_pres(nr,segment_cell(nr,ns)),res_pres(nr,segment_cell(nr,ns-1))
+    if(ncell .eq. 624 .and. ns .eq. 10)  write(106, *) time,ncell,ns,nr,x_head,x_bndry &
+        ,res_pres(nr,segment_cell(nr,ns)),res_pres(nr,segment_cell(nr,ns-1))
+
             !     Establish particle tracks
-            call Particle_Track(nr,x_head,x_bndry) ! added 'nd' just for testing purposes
+            call Particle_Track(nr,x_head,x_bndry, time) ! added 'nd' just for testing purposes
 
             DONE=.FALSE. ! logical for verifying if all tribs have been read in
 
             ncell=segment_cell(nr,ns) !cell of parcel for this time step
             nseg=nstrt_elm(ns) !segment water was at previous time step
             npndx=2
+
+
+
+    if(ncell .eq. 624 .and. ns .eq. 9)  write(102, *) time,ns,'res',nm,nm_start, nncell, res_upstreamx &
+                , nr, ncell, res_pres(nr,ncell), nseg,npndx, npart, n1, resx2
+    if(ncell .eq. 624 .and. ns .eq. 10)  write(103, *) time,ns,'res',nm,nm_start, nncell, res_upstreamx &
+                 , nr, ncell, res_pres(nr,ncell), nseg,npndx, npart, n1, resx2
+
+
             !
             !      subroutine to establish where parcel started
             !
-            call upstream_subroutine(nseg,nr,ns,T_0, npndx, npart, n1, ncell, resx2)        
+            call upstream_subroutine(nseg,nr,ns,T_0, npndx, npart, n1, ncell, resx2, time)        
 
-            T_0i = T_0  ! initial temperature, for writing energy_file
 
   ! if(ncell .eq. 624)  print *, 'initial 624 temp: ', T_0i
             !    loop to set number of segments to cycle through based on if
@@ -291,18 +305,34 @@ do nyear=start_year,end_year
             if(reservoir .and. res_upstreamx .and. .not. res_pres(nr,ncell)) then
               nm_start = ns - cell_segment(nr,res_end_node(resx2))
               nncell= ncell0res ! cell of previous time step
+
+ 
+    if(ncell .eq. 624 .and. ns .eq. 9)  write(100, *) time,ns,'res',  nm,nm_start, nncell, res_upstreamx & 
+                , nr, ncell, res_pres(nr,ncell), nseg,npndx, npart, n1, resx2 
+    if(ncell .eq. 624 .and. ns .eq. 10)  write(101, *) time,ns,'res',  nm,nm_start, nncell, res_upstreamx & 
+                 , nr, ncell, res_pres(nr,ncell), nseg,npndx, npart, n1, resx2  
+
             else
               nm_start = no_dt(ns)
               nncell=segment_cell(nr,nstrt_elm(ns)) ! cell of previous time step
+
+
+    if(ncell .eq. 624 .and. ns .eq. 9)  write(100, *) time,ns,'river',  nm,nm_start, nncell, res_upstreamx & 
+                , nr, ncell, res_pres(nr,ncell), nseg,npndx, npart, n1, resx2 
+    if(ncell .eq. 624 .and. ns .eq. 10)  write(101, *) time,ns,'river',  nm,nm_start, nncell, res_upstreamx  &
+                , nr, ncell, res_pres(nr,ncell), nseg,npndx, npart, n1, resx2 
+
             end if
 
             ncell0=nncell  !    set ncell0 for purposes of tributary input
             dt_total=dt_calc  ! set total time to time parcel took to pass through first segment
 
 
+
             do nm=nm_start,1,-1  ! cycle through each segment parcel passed through
+            T_0i = T_0  ! initial temperature, for writing energy_file
               z=depth(nncell)
-              if(z .lt. 5) z = 5
+              !if(z .lt. 5) z = 5
               nd2 = nd  ! cut out later, just to print day in energy module
               call energy(T_0,q_surf,nncell, ns, nyear, nd2)
               q_dot=(q_surf/(z*rfac))
@@ -310,19 +340,28 @@ do nyear=start_year,end_year
         ! ################ This is specially for simple energy test###########!                
         !     q_dot = 0  ! ONLY for the simple test
    !  if(ncell .eq. 624)  print *, 'T_0 as it flows', T_0, 'nm', nm
-      
+              dt_calc_i = dt_calc
+              if (res_pres(nr, (segment_cell(nr,nseg) - 1) ))  then
+                dt_calc=dt(nncell+1) 
+              end if
+if(ncell .eq. 625 .and. ns .eq. 11)  write(111, *) time,nm,dt_calc_i, dt_calc
               T_0=T_0+q_dot*dt_calc !adds heat added only during time parcel passed this segment
 
                 T_0_q = T_0
+
+if(ncell .eq. 625 .and. ns .eq. 11) write(114, *) time,ns,nm,T_0i, q_surf,z,rfac,q_dot, dt_calc,T_0,T_0+q_dot*dt_calc
 
               if(T_0.lt.0.0) T_0=0.0
   !  write(*,*) 'pre trib subroutine      nd:  ', nd
 
              call trib_subroutine(nncell,ncell0, T_0,nr_trib, nr & 
-                          ,ns, nseg, n2, DONE, dt_calc, dt_total, ncell)
+                          ,ns, nseg, n2, DONE, dt_calc, dt_total, ncell, time,nm)
 
    
-    if(ncell .eq. 624 .and. ns .eq. 10)  write(93, *) time,ns,z, T_0i,q_dot*dt_calc,T_0_q,  T_0
+if(ncell .eq. 625 .and. ns .eq. 11) write(93, *) time,ns,nm,nncell, ncell0,z,Q_in(nncell),T_0i,q_surf,q_dot &
+   , dt_calc, q_dot*dt_calc,T_0_q,T_0
+if(ncell .eq. 625 .and. ns .eq. 12) write(94, *) time,ns,nm,nncell, ncell0,z,Q_in(nncell),T_0i,q_surf,q_dot &
+     , dt_calc,q_dot*dt_calc,T_0_q,T_0
         
             end do ! end loop cycling through all segments parcel passed through
 
